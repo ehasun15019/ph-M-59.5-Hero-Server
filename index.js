@@ -20,7 +20,7 @@ app.use(async (req, res, next) => {
 
 //ports & clients
 const port = process.env.PORT || 5000;
-const uri = process.env.URI
+const uri = process.env.URI;
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -50,7 +50,15 @@ const appsCollection = database.collection("apps");
 
 app.get("/apps", async (req, res) => {
   try {
-    const apps = await appsCollection.find().toArray();
+    const {limit, skip} = req.query;
+    console.log(limit);
+    
+    const apps = await appsCollection
+      .find()
+      .project({ description: 0, rating: 0 })
+      .limit(Number(limit))
+      .skip(Number(skip))
+      .toArray();
     res.send(apps);
   } catch (error) {
     console.log(error);
